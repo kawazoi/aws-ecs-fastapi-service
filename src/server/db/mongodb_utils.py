@@ -13,8 +13,8 @@ async def connect_to_mongo():
     logging.info("Connect to the database...")
     db.client = AsyncIOMotorClient(
         str(config.mongo["MONGODB_URL"]),
-        minPoolSize=config.mongo["MIN_CONNECTIONS_COUNT"],
-        maxPoolSize=config.mongo["MAX_CONNECTIONS_COUNT"],
+        minPoolSize=int(config.mongo["MIN_CONNECTIONS_COUNT"]),
+        maxPoolSize=int(config.mongo["MAX_CONNECTIONS_COUNT"]),
     )
     logging.info("Successfully connected to the database!")
 

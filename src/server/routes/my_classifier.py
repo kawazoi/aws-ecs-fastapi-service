@@ -1,25 +1,30 @@
 from fastapi import APIRouter, Body, Depends
 from fastapi.encoders import jsonable_encoder
 
-from src.server.db.mongodb import AsyncIOMotorClient, get_database
-from src.server.crud.student import (
+# from src.server.db.mongodb import AsyncIOMotorClient, get_database
+from src.server.crud.my_api import (
     # add_student,
     # delete_student,
-    # retrieve_student,
-    retrieve_students,
+    retrieve_item,
+    # retrieve_students,
     # update_student,
 )
-from src.server.models.student import (
-    ErrorResponseModel,
+from src.server.models.my_api import (
+    MyApiSchema,
     ResponseModel,
-    StudentSchema,
-    UpdateStudentModel,
+    ErrorResponseModel,
 )
-
 
 
 router = APIRouter()
 
+
+@router.get("/{id}", response_description="Item data retrieved")
+async def get_item_data(id):
+    item = await retrieve_item(id)
+    if item:
+        return ResponseModel(item, "Item data retrieved successfully")
+    return ErrorResponseModel("An error occurred.", 404, "Item doesn't exist.")
 
 # @router.post("/", response_description="Student data added into the database")
 # async def add_student_data(student: StudentSchema = Body(...)):
@@ -28,22 +33,13 @@ router = APIRouter()
 #     return ResponseModel(new_student, "Student added successfully.")
 
 
-@router.get("/", response_description="Students retrieved")
-async def get_students(
-    db: AsyncIOMotorClient = Depends(get_database),
-):
-    students = await retrieve_students(db)
-    if students:
-        return ResponseModel(students, "Students data retrieved successfully")
-    return ResponseModel(students, "Empty list returned")
-
-
-# @router.get("/{id}", response_description="Student data retrieved")
-# async def get_student_data(id):
-#     student = await retrieve_student(id)
-#     if student:
-#         return ResponseModel(student, "Student data retrieved successfully")
-#     return ErrorResponseModel("An error occurred.", 404, "Student doesn't exist.")
+# @router.get("/", response_description="Students retrieved")
+# async def get_students():
+#     db = get_database()
+#     students = await retrieve_students(db)
+#     if students:
+#         return ResponseModel(students, "Students data retrieved successfully")
+#     return ResponseModel(students, "Empty list returned")
 
 
 # @router.put("/{id}")

@@ -1,12 +1,16 @@
-import os
+from typing import Optional, Any
 import logging
-from dotenv import load_dotenv
+import os
+import uvicorn
 
 from configparser import ConfigParser
-from typing import Optional, Any
+from databases import DatabaseURL
+from dotenv import load_dotenv
 
 
 load_dotenv()
+
+LOG_FORMAT = ("%(asctime)s - %(levelname)s - %(name)s - %(message)s",)
 
 
 class ConfigManager:
@@ -22,20 +26,48 @@ class ConfigManager:
     @property
     def api(self) -> dict:
         return dict(
-            NAME=self._fetch_from_env("API_NAME"), PORT=self._fetch_from_env("API_PORT")
+            NAME=self._fetch_from_env("API_NAME"),
+            PORT=int(self._fetch_from_env("API_PORT")),
+        )
+
+    @property
+    def uvicorn(self) -> dict:
+        log_config = uvicorn.config.LOGGING_CONFIG
+        log_config["formatters"]["access"]["fmt"] = LOG_FORMAT
+        return dict(
+            LOG_CONFIG=log_config,
+            LOG_LEVEL=self._fetch_from_env("UVICORN_LOG_LEVEL", "info"),
+            RELOAD=bool(int(self._fetch_from_env("UVICORN_RELOAD", 0))),
         )
 
     @property
     def mongo(self) -> dict:
+        MONGODB_URL = self._fetch_from_env(
+            "MONGODB_URL"
+        )  # deploying without docker-compose
+
+        if not MONGODB_URL:
+            HOST = self._fetch_from_env("MONGO_HOST", "localhost")
+            PORT = self._fetch_from_env("MONGO_PORT", 27017)
+            USER = self._fetch_from_env("MONGO_USER", "admin")
+            PASSWORD = self._fetch_from_env("MONGO_PASSWORD", "admin123")
+            DB = self._fetch_from_env("MONGO_DB", "fastapi")
+
+            MONGODB_URL = DatabaseURL(f"mongodb://{USER}:{PASSWORD}@{HOST}:{PORT}/{DB}")
+        else:
+            MONGODB_URL = DatabaseURL(MONGODB_URL)
+
         return dict(
-            MONGODB_URL=self._fetch_from_env("MONGODB_URL"), # deploying without docker-compose
-            HOST=self._fetch_from_env("MONGO_HOST", "localhost"),
-            PORT=self._fetch_from_env("MONGO_PORT", 27017),
-            USER=self._fetch_from_env("MONGO_USER", "myuser"),
-            PASSWORD=self._fetch_from_env("MONGO_PASSWORD", "mypassword123"),
-            DB=self._fetch_from_env("MONGO_DB", "mydb"),
+            MONGODB_URL=MONGODB_URL,
             MAX_CONNECTIONS_COUNT=self._fetch_from_env("MAX_CONNECTIONS_COUNT"),
             MIN_CONNECTIONS_COUNT=self._fetch_from_env("MIN_CONNECTIONS_COUNT"),
+        )
+
+    @property
+    def log(self) -> dict:
+        return dict(
+            LOG_FORMAT="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
+            LOG_LEVEL=self._fetch_from_env("LOG_LEVEL"),
         )
 
     def _fetch_from_env(self, varname: str = "", default: Any = None) -> Optional[str]:

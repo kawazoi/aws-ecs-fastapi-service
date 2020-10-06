@@ -1,10 +1,15 @@
 from fastapi import FastAPI
 
-from src.server.routes.student import router as StudentRouter
+from src.server.routes.my_api import router as MyApi
+# from src.server.db.mongodb_utils import close_mongo_connection, connect_to_mongo
+
 
 app = FastAPI()
 
-app.include_router(StudentRouter, tags=["Student"], prefix="/student")
+# app.add_event_handler("startup", connect_to_mongo)
+# app.add_event_handler("shutdown", close_mongo_connection)
+
+app.include_router(MyApi, tags=["MyApi"], prefix="/my_api")
 
 
 @app.get("/", tags=["Root"])
