@@ -4,7 +4,6 @@ import os
 import uvicorn
 
 from configparser import ConfigParser
-from databases import DatabaseURL
 from dotenv import load_dotenv
 
 
@@ -38,36 +37,6 @@ class ConfigManager:
             LOG_CONFIG=log_config,
             LOG_LEVEL=self._fetch_from_env("UVICORN_LOG_LEVEL", "info"),
             RELOAD=bool(int(self._fetch_from_env("UVICORN_RELOAD", 0))),
-        )
-
-    @property
-    def mongo(self) -> dict:
-        MONGODB_URL = self._fetch_from_env(
-            "MONGODB_URL"
-        )  # deploying without docker-compose
-
-        if not MONGODB_URL:
-            HOST = self._fetch_from_env("MONGO_HOST", "localhost")
-            PORT = self._fetch_from_env("MONGO_PORT", 27017)
-            USER = self._fetch_from_env("MONGO_USER", "admin")
-            PASSWORD = self._fetch_from_env("MONGO_PASSWORD", "admin123")
-            DB = self._fetch_from_env("MONGO_DB", "fastapi")
-
-            MONGODB_URL = DatabaseURL(f"mongodb://{USER}:{PASSWORD}@{HOST}:{PORT}/{DB}")
-        else:
-            MONGODB_URL = DatabaseURL(MONGODB_URL)
-
-        return dict(
-            MONGODB_URL=MONGODB_URL,
-            MAX_CONNECTIONS_COUNT=self._fetch_from_env("MAX_CONNECTIONS_COUNT"),
-            MIN_CONNECTIONS_COUNT=self._fetch_from_env("MIN_CONNECTIONS_COUNT"),
-        )
-
-    @property
-    def log(self) -> dict:
-        return dict(
-            LOG_FORMAT="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
-            LOG_LEVEL=self._fetch_from_env("LOG_LEVEL"),
         )
 
     def _fetch_from_env(self, varname: str = "", default: Any = None) -> Optional[str]:

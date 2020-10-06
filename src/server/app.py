@@ -1,14 +1,15 @@
+from typing import Optional
+
 from fastapi import FastAPI
-
-from src.server.routes.my_classifier import router as MyClassifier
-
 
 app = FastAPI()
 
 
-app.include_router(MyClassifier, tags=["MyClassifier"], prefix="/my_classifier")
+@app.get("/")
+def read_root():
+    return {"Hello": "World"}
 
 
-@app.get("/", tags=["Root"])
-async def read_root():
-    return {"message": "Welcome to this fantastic app!"}
+@app.get("/items/{item_id}")
+def read_item(item_id: int, q: Optional[str] = None):
+    return {"item_id": item_id, "q": q}
