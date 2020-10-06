@@ -1,0 +1,17 @@
+name: Notify on Issue
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  sendSlackMessage:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Send Slack Notification
+      uses: rtCamp/action-slack-notify@master
+      env:
+        SLACK_TITLE: 'Message:'
+        SLACK_MESSAGE: 'New issue created: <${{ github.event.issue.html_url }}|${{ github.event.issue.title }}.'
+        SLACK_COLOR: '#3278BD'
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_NLP_ALERTS }}
