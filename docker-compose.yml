@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  api:
+    container_name: $API_NAME
+    build:
+      context: .
+      args:
+        # Build-time arguments
+        - GIT_TOKEN=$GIT_TOKEN
+    env_file: .env
+    ports:
+      - "5002:$API_PORT"
+    networks:
+      - internal-services
+    depends_on:
+      - db
+  db:
+    image: mongo:3.6.19-xenial
+    container_name: mongodb
+    # volumes:
+    #   - ./mongod.cdoonf:/etc/mongod.conf
+    #   - ./logs:/var/log/mongodb/
+    #   - ./db:/var/lib/mongodb
+    # command: mongod --config /etc/mongod.conf
+    env_file:
+      - .env
+    ports:
+      - 1111:27017
+    networks:
+      - internal-services
+
+networks:
+  internal-services:
+    external: true
