@@ -1,6 +1,8 @@
-import uvicorn
-from src.server.core.config import ConfigManager
+""" src.main: Runs the app with uvicorn """
 
+import uvicorn
+
+from src.server.core.config import ConfigManager
 
 cfg = ConfigManager()
 

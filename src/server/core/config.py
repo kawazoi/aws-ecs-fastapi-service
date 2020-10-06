@@ -1,11 +1,12 @@
-from typing import Optional, Any
+""" src.server.core.config.ConfigManager centralizes environment variables """
+
 import logging
 import os
-import uvicorn
-
 from configparser import ConfigParser
-from dotenv import load_dotenv
+from typing import Any, Optional
 
+import uvicorn
+from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -15,7 +16,7 @@ LOG_FORMAT = ("%(asctime)s - %(levelname)s - %(name)s - %(message)s",)
 class ConfigManager:
     """
     Use this class instead of making direct reference to env
-    To centralize constants names and such.
+    to centralize constants names and such.
     """
 
     def __init__(self, echo=False):
@@ -54,8 +55,8 @@ class ConfigManager:
                 value = default
                 if self.echo:
                     logging.warning(
-                        "{} not found as environment var but assumed a default value {}".format(
-                            varname, default
-                        )
+                        "%s not found as env var but assumed a default value %s",
+                        varname,
+                        default,
                     )
         return value

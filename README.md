@@ -23,20 +23,42 @@
     - Log Group
 
 
-## Step by Step
+## Using `pre-commit`, `black` and `flake8` for style and consistency
 
-### 1. Build and push image to ECR
+- Downlaod config files`
 
+    ```bash
+    wget https://s3.amazonaws.com/lexter.nlp.public/python_style_guide_files.zip
+    unzip python_style_guide_files.zip
+    rm python_style_guide_files.zip
+    ```
 
-### 2. CDK Deploy service
+    - This zip file contains the following files:
+        - `.pre-commit-config.yaml`
+        - `pylintrc`
+        - `pyproject.toml`
+        - `setup.cfg`
 
+- Install and configure packages
 
+    - Don't forget to source your virtualenv `venv`
 
+        ```bash
+        pip install black flake8 pylint pre-commit
+        pre-commit install
+        pre-commit install --hook-type commit-msg
+        pre-commit autoupdate
+        ```
 
-### Get task definition
+- Using `pre-commit`
 
-```bash
-aws ecs describe-task-definition \
-    --task-definition ${API_NAME}-staging \
-    --query taskDefinition > task-definition-staging.json
-```
+    - Once installed, pre-commit works automatically in every commit you make.
+
+    - If you forgot to run black and flake8 and there are inconsistencies, it will remind you
+
+    - Also, it enforces a standard way to write commit messages.
+
+    - To run it:
+
+        ```bash
+        pre-commit run --all-files
